@@ -4,7 +4,7 @@ import sys
 
 def main():
     # Run python with '-u' for unbuffered output to stream logs instantly
-    cmd = [sys.executable, "-u", "agent.py", "start"]
+    cmd = [sys.executable, "-u", "agent/agent.py", "start"]
     print("Starting LiveKit Agent resilient wrapper...", flush=True)
     
     while True:
