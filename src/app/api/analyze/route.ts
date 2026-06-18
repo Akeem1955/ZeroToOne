@@ -3,7 +3,7 @@ import { GoogleGenAI } from "@google/genai";
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, idea, audience, country, constraints } = await req.json();
+    const { name, idea, audience, country, constraints, fileAttachment } = await req.json();
 
     if (!name || !idea) {
       return NextResponse.json(
@@ -23,10 +23,8 @@ export async function POST(req: NextRequest) {
     // Initialize Google Gen AI SDK
     const ai = new GoogleGenAI({ apiKey });
 
-    // Use "gemini-2.5-flash" or the user specified "gemini-3.5-flash" if supported.
-    // We default to "gemini-2.5-flash" if "gemini-3.5-flash" is not recognized by the endpoint,
-    // but we try the user's specific request first.
-    const modelName = "gemini-2.5-flash"; 
+    // Allow model override via environment variables (e.g. during high demand spikes)
+    const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash"; 
 
     const prompt = `
 You are a market validation analyst and startup architect.
@@ -55,50 +53,74 @@ Tasks:
    - completionGate (the strict exit criteria that the user must manually check off to verify this stage has been validated)
 6. Formulate 3 contrarian "Devil's Advocate" feedback points challenging the user's core assumptions.
 
-Output JSON matching the required schema. Do not make assumptions, rely on search results.
+Your output must be a single, valid JSON block. Do not include any explaining text outside of the JSON block. Do not use markdown wraps.
+The JSON structure must match this example:
+{
+  "score": 75,
+  "advice": "Viable project. Focus on Milestone 1 validation.",
+  "competitors": ["Comp A", "Comp B", "Comp C"],
+  "painPoints": ["Risk 1", "Risk 2", "Risk 3"],
+  "roadmap": [
+    {
+      "title": "Stage 1 Title",
+      "duration": "Days 1-10",
+      "description": "Stage description",
+      "inputs": ["Input 1", "Input 2"],
+      "firstStep": "First action step details",
+      "completionGate": "Exit gate details"
+    }
+  ],
+  "devilAdvocate": ["Point 1", "Point 2", "Point 3"]
+}
 `;
 
-    // Call Gemini with search grounding and structured JSON schema
+    // Call Gemini for feasibility analysis (free tier without search grounding)
+    console.log(`[API] Running feasibility analysis using model "${modelName}"...`);
+    
+    // Prepare contents array to support inline files if present
+    const contents: any[] = [prompt];
+    if (fileAttachment) {
+      if (fileAttachment.isBinary) {
+        contents.push({
+          inlineData: {
+            mimeType: fileAttachment.mimeType,
+            data: fileAttachment.data, // base64 string
+          }
+        });
+        console.log(`[API] Attached binary file "${fileAttachment.name}" (${fileAttachment.mimeType})`);
+      } else {
+        // Direct text embedding
+        contents.push(`\n\n[Uploaded File Context: ${fileAttachment.name}]\n${fileAttachment.data}`);
+        console.log(`[API] Attached text file "${fileAttachment.name}"`);
+      }
+    }
+
     const response = await ai.models.generateContent({
       model: modelName,
-      contents: prompt,
-      config: {
-        // Enable search grounding
-        tools: [{ googleSearch: {} }],
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: "OBJECT",
-          properties: {
-            score: { type: "INTEGER" },
-            advice: { type: "STRING" },
-            competitors: { type: "ARRAY", items: { type: "STRING" } },
-            painPoints: { type: "ARRAY", items: { type: "STRING" } },
-            roadmap: {
-              type: "ARRAY",
-              items: {
-                type: "OBJECT",
-                properties: {
-                  title: { type: "STRING" },
-                  duration: { type: "STRING" },
-                  description: { type: "STRING" },
-                  inputs: { type: "ARRAY", items: { type: "STRING" } },
-                  firstStep: { type: "STRING" },
-                  completionGate: { type: "STRING" }
-                },
-                required: ["title", "duration", "description", "inputs", "firstStep", "completionGate"]
-              }
-            },
-            devilAdvocate: { type: "ARRAY", items: { type: "STRING" } }
-          },
-          required: ["score", "advice", "competitors", "painPoints", "roadmap", "devilAdvocate"]
-        }
-      }
+      contents: contents,
     });
+    console.log("[API] Analysis completed successfully.");
 
-    const responseText = response.text;
+    let responseText = response.text || "";
     if (!responseText) {
       throw new Error("Empty response received from Gemini model.");
     }
+
+    // Strip markdown code block wrappers if present
+    responseText = responseText.trim();
+    if (responseText.startsWith("```json")) {
+      responseText = responseText.substring(7);
+      if (responseText.endsWith("```")) {
+        responseText = responseText.substring(0, responseText.length - 3);
+      }
+    } else if (responseText.startsWith("```")) {
+      responseText = responseText.substring(3);
+      if (responseText.endsWith("```")) {
+        responseText = responseText.substring(0, responseText.length - 3);
+      }
+    }
+    
+    responseText = responseText.trim();
 
     const parsedResult = JSON.parse(responseText);
     return NextResponse.json(parsedResult);

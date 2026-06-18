@@ -3,17 +3,20 @@
 import React, { useState, useEffect } from "react";
 import { X, Mic, MicOff, PhoneOff, Wifi, Sparkles, Loader2 } from "lucide-react";
 import { LiveKitRoom, RoomAudioRenderer, useLocalParticipant, useRemoteParticipants } from "@livekit/components-react";
+import { FileAttachment } from "@/lib/types";
 
 interface LiveKitCallOverlayProps {
   onClose: () => void;
   projectName: string;
   activeMilestoneTitle: string;
+  fileAttachment?: FileAttachment | null;
 }
 
 export default function LiveKitCallOverlay({
   onClose,
   projectName,
   activeMilestoneTitle,
+  fileAttachment,
 }: LiveKitCallOverlayProps) {
   const [token, setToken] = useState<string | null>(null);
   const [serverUrl, setServerUrl] = useState<string | null>(null);
@@ -27,7 +30,17 @@ export default function LiveKitCallOverlay({
       try {
         setLoadingToken(true);
         setTokenError("");
-        const res = await fetch(`/api/livekit-token?room=${roomName}`);
+        let fileMetaParam = "";
+        if (fileAttachment) {
+          const summary = fileAttachment.isBinary
+            ? `Binary file (${fileAttachment.mimeType})`
+            : fileAttachment.data.substring(0, 300);
+          fileMetaParam = `&fileName=${encodeURIComponent(fileAttachment.name)}&fileSummary=${encodeURIComponent(summary)}`;
+        }
+
+        const res = await fetch(
+          `/api/livekit-token?room=${roomName}&projectName=${encodeURIComponent(projectName)}&activeMilestoneTitle=${encodeURIComponent(activeMilestoneTitle)}${fileMetaParam}`
+        );
         if (!res.ok) {
           throw new Error("Failed to fetch connection token from server.");
         }
@@ -79,7 +92,7 @@ export default function LiveKitCallOverlay({
       token={token}
       serverUrl={serverUrl}
       connect={true}
-      audio={true}
+      audio={false}
       video={false}
       onDisconnected={onClose}
     >

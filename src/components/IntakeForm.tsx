@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Sparkles, MapPin, Users, AlertCircle } from "lucide-react";
+import { Sparkles, MapPin, Users, AlertCircle, Upload, FileText, X } from "lucide-react";
 
 interface IntakeFormProps {
   onSubmit: (data: {
@@ -10,6 +10,12 @@ interface IntakeFormProps {
     audience: string;
     country: string;
     constraints: string;
+    fileAttachment?: {
+      name: string;
+      mimeType: string;
+      data: string;
+      isBinary: boolean;
+    } | null;
   }) => void;
 }
 
@@ -19,7 +25,55 @@ export default function IntakeForm({ onSubmit }: IntakeFormProps) {
   const [audience, setAudience] = useState("");
   const [country, setCountry] = useState("");
   const [constraints, setConstraints] = useState("No-Code, 2 weeks, $0 budget");
+  const [fileAttachment, setFileAttachment] = useState<{
+    name: string;
+    mimeType: string;
+    data: string;
+    isBinary: boolean;
+  } | null>(null);
   const [error, setError] = useState("");
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setFileAttachment(null);
+      return;
+    }
+
+    const isBinary = file.type.startsWith("image/") || file.type === "application/pdf";
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      if (isBinary) {
+        // Extract base64 encoding from data URL
+        const base64Data = result.split(",")[1];
+        setFileAttachment({
+          name: file.name,
+          mimeType: file.type,
+          data: base64Data,
+          isBinary: true,
+        });
+      } else {
+        setFileAttachment({
+          name: file.name,
+          mimeType: file.type,
+          data: result,
+          isBinary: false,
+        });
+      }
+    };
+
+    if (isBinary) {
+      reader.readAsDataURL(file);
+    } else {
+      reader.readAsText(file);
+    }
+  };
+
+  const removeFile = () => {
+    setFileAttachment(null);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +90,7 @@ export default function IntakeForm({ onSubmit }: IntakeFormProps) {
       return;
     }
     setError("");
-    onSubmit({ name, idea, audience, country, constraints });
+    onSubmit({ name, idea, audience, country, constraints, fileAttachment });
   };
 
   return (
@@ -143,6 +197,51 @@ export default function IntakeForm({ onSubmit }: IntakeFormProps) {
             onChange={(e) => setConstraints(e.target.value)}
             className="w-full px-4 py-3 bg-surface border border-outline rounded-2xl text-foreground placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
           />
+        </div>
+
+        {/* File Upload Section */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-foreground">
+            Optional Project Document (PDF, Image, or Text/Code file)
+          </label>
+          {!fileAttachment ? (
+            <div className="border border-dashed border-outline-variant hover:border-primary rounded-2xl p-6 transition-all flex flex-col items-center justify-center gap-2 bg-surface cursor-pointer relative group">
+              <input
+                type="file"
+                onChange={handleFileChange}
+                accept=".txt,.md,.json,.pdf,.png,.jpg,.jpeg,.csv,.js,.ts,.tsx,.py"
+                className="absolute inset-0 opacity-0 cursor-pointer"
+              />
+              <Upload className="w-6 h-6 text-on-surface-variant group-hover:text-primary transition-colors" />
+              <span className="text-xs text-on-surface-variant group-hover:text-primary font-medium transition-colors">
+                Select or drag a file to analyze
+              </span>
+              <span className="text-[10px] text-on-surface-variant/70">
+                PDF, PNG, JPG, or Text/Code files supported
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between p-4 bg-surface border border-outline-variant rounded-2xl animate-fade-in">
+              <div className="flex items-center gap-3">
+                <FileText className="w-5 h-5 text-primary" />
+                <div className="text-left">
+                  <p className="text-xs font-semibold text-foreground truncate max-w-[180px] sm:max-w-xs">
+                    {fileAttachment.name}
+                  </p>
+                  <p className="text-[10px] text-on-surface-variant">
+                    {fileAttachment.isBinary ? "Binary Document/Image" : "Text/Code File"}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={removeFile}
+                className="p-1 bg-surface-container hover:bg-surface-container-high border border-outline-variant rounded-lg text-on-surface-variant cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Submit */}

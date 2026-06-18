@@ -6,6 +6,10 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const room = searchParams.get("room") || "default-room";
     const identity = searchParams.get("identity") || `user-${Math.floor(Math.random() * 10000)}`;
+    const projectName = searchParams.get("projectName") || "";
+    const activeMilestoneTitle = searchParams.get("activeMilestoneTitle") || "";
+    const fileName = searchParams.get("fileName") || "";
+    const fileSummary = searchParams.get("fileSummary") || "";
 
     const apiKey = process.env.LIVEKIT_API_KEY;
     const apiSecret = process.env.LIVEKIT_API_SECRET;
@@ -22,6 +26,14 @@ export async function GET(req: NextRequest) {
     const at = new AccessToken(apiKey, apiSecret, {
       identity,
       ttl: "1h", // Token valid for 1 hour
+    });
+
+    // Set context metadata so the AI Agent can parse it and act as a personalized consultant
+    at.metadata = JSON.stringify({
+      projectName,
+      activeMilestoneTitle,
+      fileName,
+      fileSummary,
     });
 
     // Grant join permissions for the specific room

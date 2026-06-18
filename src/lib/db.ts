@@ -13,7 +13,7 @@ import {
   serverTimestamp,
   Timestamp,
 } from "firebase/firestore";
-import { Milestone, FeasibilityResult } from "./types";
+import { Milestone, FeasibilityResult, FileAttachment } from "./types";
 
 export interface UserProject {
   id: string;
@@ -30,6 +30,7 @@ export interface UserProject {
   milestones: Milestone[];
   activeMilestoneIndex: number;
   devilAdvocate: string[];
+  fileAttachment?: FileAttachment | null;
   createdAt: any;
   updatedAt: any;
 }
@@ -42,7 +43,8 @@ export async function saveProject(
   audience: string,
   country: string,
   constraints: string,
-  analysis: FeasibilityResult
+  analysis: FeasibilityResult,
+  fileAttachment?: FileAttachment | null
 ): Promise<string> {
   const projectsCol = collection(db, "projects");
   const docRef = await addDoc(projectsCol, {
@@ -59,6 +61,7 @@ export async function saveProject(
     milestones: analysis.roadmap,
     devilAdvocate: analysis.devilAdvocate,
     activeMilestoneIndex: 0,
+    fileAttachment: fileAttachment || null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });

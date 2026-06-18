@@ -16,8 +16,9 @@ const firebaseConfig = {
 // Initialize Firebase safely (avoiding re-initialization during hot reloading)
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// Initialize Firestore
-const db = getFirestore(app);
+// Initialize Firestore (supporting custom database IDs for enterprise/multi-database setups)
+const databaseId = process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID;
+const db = databaseId ? getFirestore(app, databaseId) : getFirestore(app);
 
 // Initialize Auth
 const auth = getAuth(app);

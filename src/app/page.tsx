@@ -25,7 +25,7 @@ import ProfilePanel from "@/components/ProfilePanel";
 import SettingsPanel from "@/components/SettingsPanel";
 import LiveKitCallOverlay from "@/components/LiveKitCallOverlay";
 
-import { FeasibilityResult } from "@/lib/types";
+import { FeasibilityResult, FileAttachment } from "@/lib/types";
 
 type AppView = "landing" | "auth" | "app";
 type DashboardTab = "home" | "create" | "profile" | "settings";
@@ -55,6 +55,7 @@ function HomeContent() {
     audience: string;
     country: string;
     constraints: string;
+    fileAttachment?: FileAttachment | null;
   } | null>(null);
   const [analysisResult, setAnalysisResult] = useState<FeasibilityResult | null>(null);
 
@@ -115,6 +116,7 @@ function HomeContent() {
     audience: string;
     country: string;
     constraints: string;
+    fileAttachment?: FileAttachment | null;
   }) => {
     setCreationLoading(true);
     setCreationError("");
@@ -156,7 +158,8 @@ function HomeContent() {
         projectData.audience,
         projectData.country,
         projectData.constraints,
-        analysisResult
+        analysisResult,
+        projectData.fileAttachment
       );
 
       // Refresh project list and open the newly saved project details
@@ -368,6 +371,7 @@ function HomeContent() {
               ? activeProject.milestones[activeProject.activeMilestoneIndex].title
               : "Validation Complete"
           }
+          fileAttachment={activeProject.fileAttachment}
           onClose={() => setVoiceCallActive(false)}
         />
       )}

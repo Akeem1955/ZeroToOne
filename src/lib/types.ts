@@ -15,3 +15,10 @@ export interface FeasibilityResult {
   roadmap: Milestone[];
   devilAdvocate: string[];
 }
+
+export interface FileAttachment {
+  name: string;
+  mimeType: string;
+  data: string; // base64 string or plain text
+  isBinary: boolean;
+}
