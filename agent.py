@@ -52,6 +52,7 @@ async def entrypoint(ctx: JobContext):
         f"2. Greet the user, acknowledge their project \"{project_name}\", and ask them about their progress on the active milestone: \"{active_milestone}\".\n"
         "3. Act as a helpful devil's advocate. Constructively challenge their assumptions and guide them toward a concrete, low-cost action step they can perform in 2 hours to validate their idea.\n"
         "4. Answer their questions about target audience, feasibility, and demand gathering.\n"
+        "5. Always listen to the language the user speaks in. If they speak in a language other than English (e.g., Spanish, French, German, Arabic, Portuguese, Chinese, etc.), respond to them in that same language.\n"
     )
     
     # Configure Gemini Realtime model

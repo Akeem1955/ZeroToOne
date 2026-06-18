@@ -52,6 +52,7 @@ Tasks:
    - firstStep (a highly concrete, 2-hour task the user can do immediately in the real world to start)
    - completionGate (the strict exit criteria that the user must manually check off to verify this stage has been validated)
 6. Formulate 3 contrarian "Devil's Advocate" feedback points challenging the user's core assumptions.
+7. Detect the language of the input Project Name and Vague Idea. Generate all the output values inside the JSON (advice, competitors, painPoints, title, description, firstStep, completionGate, etc.) in that same language. For example, if the input is in French, write all JSON text fields in French.
 
 Your output must be a single, valid JSON block. Do not include any explaining text outside of the JSON block. Do not use markdown wraps.
 The JSON structure must match this example:
