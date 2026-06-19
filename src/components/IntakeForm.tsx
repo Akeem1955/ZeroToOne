@@ -3,6 +3,117 @@
 import React, { useState } from "react";
 import { Sparkles, MapPin, Users, AlertCircle, Upload, FileText, X } from "lucide-react";
 
+const LANGUAGES = [
+  { code: "English", label: "English" },
+  { code: "Afrikaans", label: "Afrikaans" },
+  { code: "Albanian", label: "Shqip (Albanian)" },
+  { code: "Amharic", label: "አማርኛ (Amharic)" },
+  { code: "Arabic", label: "العربية (Arabic)" },
+  { code: "Armenian", label: "Հայերեն (Armenian)" },
+  { code: "Azerbaijani", label: "Azərbaycanca (Azerbaijani)" },
+  { code: "Basque", label: "Euskara (Basque)" },
+  { code: "Belarusian", label: "Беларуская (Belarusian)" },
+  { code: "Bengali", label: "বাংলা (Bengali)" },
+  { code: "Bosnian", label: "Bosanski (Bosnian)" },
+  { code: "Bulgarian", label: "Български (Bulgarian)" },
+  { code: "Catalan", label: "Català (Catalan)" },
+  { code: "Cebuano", label: "Cebuano" },
+  { code: "Chinese (Simplified)", label: "简体中文 (Chinese Simplified)" },
+  { code: "Chinese (Traditional)", label: "繁體中文 (Chinese Traditional)" },
+  { code: "Corsican", label: "Corsu (Corsican)" },
+  { code: "Croatian", label: "Hrvatski (Croatian)" },
+  { code: "Czech", label: "Čeština (Czech)" },
+  { code: "Danish", label: "Dansk (Danish)" },
+  { code: "Dutch", label: "Nederlands (Dutch)" },
+  { code: "Esperanto", label: "Esperanto" },
+  { code: "Estonian", label: "Eesti (Estonian)" },
+  { code: "Finnish", label: "Suomi (Finnish)" },
+  { code: "French", label: "Français (French)" },
+  { code: "Galician", label: "Galego (Galician)" },
+  { code: "Georgian", label: "ქართული (Georgian)" },
+  { code: "German", label: "Deutsch (German)" },
+  { code: "Greek", label: "Ελληνικά (Greek)" },
+  { code: "Gujarati", label: "ગુજરાતી (Gujarati)" },
+  { code: "Haitian Creole", label: "Kreyòl Ayisyen (Haitian Creole)" },
+  { code: "Hausa", label: "Hausa" },
+  { code: "Hawaiian", label: "Ōlelo Hawaiʻi (Hawaiian)" },
+  { code: "Hebrew", label: "עברית (Hebrew)" },
+  { code: "Hindi", label: "हिन्दी (Hindi)" },
+  { code: "Hmong", label: "Hmong" },
+  { code: "Hungarian", label: "Magyar (Hungarian)" },
+  { code: "Icelandic", label: "Íslenska (Icelandic)" },
+  { code: "Igbo", label: "Asụsụ Igbo (Igbo)" },
+  { code: "Indonesian", label: "Bahasa Indonesia (Indonesian)" },
+  { code: "Irish", label: "Gaeilge (Irish)" },
+  { code: "Italian", label: "Italiano (Italian)" },
+  { code: "Japanese", label: "日本語 (Japanese)" },
+  { code: "Javanese", label: "Javanese" },
+  { code: "Kannada", label: "ಕನ್ನಡ (Kannada)" },
+  { code: "Kazakh", label: "Қазақ тілі (Kazakh)" },
+  { code: "Khmer", label: "ភាសាខ្មែរ (Khmer)" },
+  { code: "Kinyarwanda", label: "Ikinyarwanda (Kinyarwanda)" },
+  { code: "Korean", label: "한국어 (Korean)" },
+  { code: "Kurdish", label: "Kurdî (Kurdish)" },
+  { code: "Kyrgyz", label: "Кыргызча (Kyrgyz)" },
+  { code: "Lao", label: "ພາສາລາວ (Lao)" },
+  { code: "Latin", label: "Latina (Latin)" },
+  { code: "Latvian", label: "Latviešu (Latvian)" },
+  { code: "Lithuanian", label: "Lietuvių (Lithuanian)" },
+  { code: "Luxembourgish", label: "Lëtzebuergesch (Luxembourgish)" },
+  { code: "Macedonian", label: "Македонски (Macedonian)" },
+  { code: "Malagasy", label: "Malagasy" },
+  { code: "Malay", label: "Bahasa Melayu (Malay)" },
+  { code: "Malayalam", label: "മലയാളം (Malayalam)" },
+  { code: "Maltese", label: "Malti (Maltese)" },
+  { code: "Maori", label: "Māori (Maori)" },
+  { code: "Marathi", label: "मराठी (Marathi)" },
+  { code: "Mongolian", label: "Монгол хэл (Mongolian)" },
+  { code: "Myanmar (Burmese)", label: "မြန်မာစာ (Burmese)" },
+  { code: "Nepali", label: "नेपाली (Nepali)" },
+  { code: "Norwegian", label: "Norsk (Norwegian)" },
+  { code: "Nyanja (Chichewa)", label: "Chichewa" },
+  { code: "Odia (Oriya)", label: "ଓଡ଼ିଆ (Odia)" },
+  { code: "Pashto", label: "پښتو (Pashto)" },
+  { code: "Persian", label: "فارسی (Persian)" },
+  { code: "Polish", label: "Polski (Polish)" },
+  { code: "Portuguese", label: "Português (Portuguese)" },
+  { code: "Punjabi", label: "ਪੰਜਾਬੀ (Punjabi)" },
+  { code: "Romanian", label: "Română (Romanian)" },
+  { code: "Russian", label: "Русский (Russian)" },
+  { code: "Samoan", label: "Gagana Sāmoa (Samoan)" },
+  { code: "Scots Gaelic", label: "Gàidhlig (Scots Gaelic)" },
+  { code: "Serbian", label: "Српски (Serbian)" },
+  { code: "Sesotho", label: "Sesotho" },
+  { code: "Shona", label: "ChiShona (Shona)" },
+  { code: "Sindhi", label: "سنڌي (Sindhi)" },
+  { code: "Sinhala (Sinhalese)", label: "සිංហල (Sinhalese)" },
+  { code: "Slovak", label: "Slovenčina (Slovak)" },
+  { code: "Slovenian", label: "Slovenščina (Slovenian)" },
+  { code: "Somali", label: "Soomaali (Somali)" },
+  { code: "Spanish", label: "Español (Spanish)" },
+  { code: "Sundanese", label: "Sundanese" },
+  { code: "Swahili", label: "Kiswahili (Swahili)" },
+  { code: "Swedish", label: "Svenska (Swedish)" },
+  { code: "Tagalog (Filipino)", label: "Tagalog (Filipino)" },
+  { code: "Tajik", label: "Тоҷикӣ (Tajik)" },
+  { code: "Tamil", label: "தமிழ் (Tamil)" },
+  { code: "Tatar", label: "Татарча (Tatar)" },
+  { code: "Telugu", label: "తెలుగు (Telugu)" },
+  { code: "Thai", label: "ไทย (Thai)" },
+  { code: "Turkish", label: "Türkçe (Turkish)" },
+  { code: "Turkmen", label: "Türkmençe (Turkmen)" },
+  { code: "Ukrainian", label: "Українська (Ukrainian)" },
+  { code: "Urdu", label: "اردو (Urdu)" },
+  { code: "Uyghur", label: "ئۇيغۇرخါ (Uyghur)" },
+  { code: "Uzbek", label: "Oʻzbekcha (Uzbek)" },
+  { code: "Vietnamese", label: "Tiếng Việt (Vietnamese)" },
+  { code: "Welsh", label: "Cymraeg (Welsh)" },
+  { code: "Xhosa", label: "isiXhosa (Xhosa)" },
+  { code: "Yiddish", label: "ייִديש (Yiddish)" },
+  { code: "Yoruba", label: "Yorùbá (Yoruba)" },
+  { code: "Zulu", label: "isiZulu (Zulu)" }
+];
+
 interface IntakeFormProps {
   onSubmit: (data: {
     name: string;
@@ -205,7 +316,7 @@ export default function IntakeForm({ onSubmit }: IntakeFormProps) {
           {/* Language Selection */}
           <div className="space-y-2">
             <label htmlFor="language" className="block text-sm font-medium text-foreground">
-              Target Output Language
+              Language you speak & write in
             </label>
             <select
               id="language"
@@ -213,12 +324,11 @@ export default function IntakeForm({ onSubmit }: IntakeFormProps) {
               onChange={(e) => setLanguage(e.target.value)}
               className="w-full px-4 py-3 bg-surface border border-outline rounded-2xl text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
             >
-              <option value="English">English</option>
-              <option value="French">French (Français)</option>
-              <option value="Spanish">Spanish (Español)</option>
-              <option value="German">German (Deutsch)</option>
-              <option value="Arabic">Arabic (العربية)</option>
-              <option value="Portuguese">Portuguese (Português)</option>
+              {LANGUAGES.map((lang) => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.label}
+                </option>
+              ))}
             </select>
           </div>
         </div>

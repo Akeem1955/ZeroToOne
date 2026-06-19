@@ -18,6 +18,7 @@ export default function LiveKitCallOverlay({
   projectName,
   activeMilestoneTitle,
   fileAttachment,
+  language,
 }: LiveKitCallOverlayProps) {
   const [token, setToken] = useState<string | null>(null);
   const [serverUrl, setServerUrl] = useState<string | null>(null);
