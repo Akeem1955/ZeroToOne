@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
     const activeMilestoneTitle = searchParams.get("activeMilestoneTitle") || "";
     const fileName = searchParams.get("fileName") || "";
     const fileSummary = searchParams.get("fileSummary") || "";
+    const language = searchParams.get("language") || "English";
 
     const apiKey = process.env.LIVEKIT_API_KEY;
     const apiSecret = process.env.LIVEKIT_API_SECRET;
@@ -34,6 +35,7 @@ export async function GET(req: NextRequest) {
       activeMilestoneTitle,
       fileName,
       fileSummary,
+      language,
     });
 
     // Grant join permissions for the specific room

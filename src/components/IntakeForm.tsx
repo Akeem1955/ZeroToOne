@@ -10,6 +10,7 @@ interface IntakeFormProps {
     audience: string;
     country: string;
     constraints: string;
+    language: string;
     fileAttachment?: {
       name: string;
       mimeType: string;
@@ -25,6 +26,7 @@ export default function IntakeForm({ onSubmit }: IntakeFormProps) {
   const [audience, setAudience] = useState("");
   const [country, setCountry] = useState("");
   const [constraints, setConstraints] = useState("No-Code, 2 weeks, $0 budget");
+  const [language, setLanguage] = useState("English");
   const [fileAttachment, setFileAttachment] = useState<{
     name: string;
     mimeType: string;
@@ -90,7 +92,7 @@ export default function IntakeForm({ onSubmit }: IntakeFormProps) {
       return;
     }
     setError("");
-    onSubmit({ name, idea, audience, country, constraints, fileAttachment });
+    onSubmit({ name, idea, audience, country, constraints, language, fileAttachment });
   };
 
   return (
@@ -184,19 +186,41 @@ export default function IntakeForm({ onSubmit }: IntakeFormProps) {
           </div>
         </div>
 
-        {/* Constraints */}
-        <div className="space-y-2">
-          <label htmlFor="constraints" className="block text-sm font-medium text-foreground">
-            Constraints & Resources
-          </label>
-          <input
-            type="text"
-            id="constraints"
-            placeholder="e.g. 2 weeks, $100 budget, sole developer"
-            value={constraints}
-            onChange={(e) => setConstraints(e.target.value)}
-            className="w-full px-4 py-3 bg-surface border border-outline rounded-2xl text-foreground placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
-          />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Constraints */}
+          <div className="space-y-2">
+            <label htmlFor="constraints" className="block text-sm font-medium text-foreground">
+              Constraints & Resources
+            </label>
+            <input
+              type="text"
+              id="constraints"
+              placeholder="e.g. 2 weeks, $100 budget, sole developer"
+              value={constraints}
+              onChange={(e) => setConstraints(e.target.value)}
+              className="w-full px-4 py-3 bg-surface border border-outline rounded-2xl text-foreground placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
+            />
+          </div>
+
+          {/* Language Selection */}
+          <div className="space-y-2">
+            <label htmlFor="language" className="block text-sm font-medium text-foreground">
+              Target Output Language
+            </label>
+            <select
+              id="language"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="w-full px-4 py-3 bg-surface border border-outline rounded-2xl text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
+            >
+              <option value="English">English</option>
+              <option value="French">French (Français)</option>
+              <option value="Spanish">Spanish (Español)</option>
+              <option value="German">German (Deutsch)</option>
+              <option value="Arabic">Arabic (العربية)</option>
+              <option value="Portuguese">Portuguese (Português)</option>
+            </select>
+          </div>
         </div>
 
         {/* File Upload Section */}

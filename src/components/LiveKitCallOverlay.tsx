@@ -10,6 +10,7 @@ interface LiveKitCallOverlayProps {
   projectName: string;
   activeMilestoneTitle: string;
   fileAttachment?: FileAttachment | null;
+  language?: string;
 }
 
 export default function LiveKitCallOverlay({
@@ -38,8 +39,10 @@ export default function LiveKitCallOverlay({
           fileMetaParam = `&fileName=${encodeURIComponent(fileAttachment.name)}&fileSummary=${encodeURIComponent(summary)}`;
         }
 
+        const langParam = language ? `&language=${encodeURIComponent(language)}` : "";
+
         const res = await fetch(
-          `/api/livekit-token?room=${roomName}&projectName=${encodeURIComponent(projectName)}&activeMilestoneTitle=${encodeURIComponent(activeMilestoneTitle)}${fileMetaParam}`
+          `/api/livekit-token?room=${roomName}&projectName=${encodeURIComponent(projectName)}&activeMilestoneTitle=${encodeURIComponent(activeMilestoneTitle)}${fileMetaParam}${langParam}`
         );
         if (!res.ok) {
           throw new Error("Failed to fetch connection token from server.");

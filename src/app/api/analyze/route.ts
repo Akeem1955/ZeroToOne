@@ -3,7 +3,7 @@ import { GoogleGenAI } from "@google/genai";
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, idea, audience, country, constraints, fileAttachment } = await req.json();
+    const { name, idea, audience, country, constraints, fileAttachment, language } = await req.json();
 
     if (!name || !idea) {
       return NextResponse.json(
@@ -34,6 +34,7 @@ Vague Idea: ${idea}
 Target Audience: ${audience || "General Public"}
 Country Context: ${country || "Global"}
 Constraints/Resources: ${constraints || "None specified"}
+Target Output Language: ${language || "English"}
 
 Tasks:
 1. Conduct a grounded analysis using Google Search. Search for active competitors, companies, or open source projects doing something similar.
@@ -52,7 +53,7 @@ Tasks:
    - firstStep (a highly concrete, 2-hour task the user can do immediately in the real world to start)
    - completionGate (the strict exit criteria that the user must manually check off to verify this stage has been validated)
 6. Formulate 3 contrarian "Devil's Advocate" feedback points challenging the user's core assumptions.
-7. Detect the language of the input Project Name and Vague Idea. Generate all the output values inside the JSON (advice, competitors, painPoints, title, description, firstStep, completionGate, etc.) in that same language. For example, if the input is in French, write all JSON text fields in French.
+7. Generate all text fields and values inside the JSON output (advice, competitors, painPoints, title, description, firstStep, completionGate, etc.) EXCLUSIVELY in the language specified as "Target Output Language" (${language || "English"}). Do not translate the JSON keys. Do not mix languages (e.g. do not mix English and French). All content in the text values must be in ${language || "English"}.
 
 Your output must be a single, valid JSON block. Do not include any explaining text outside of the JSON block. Do not use markdown wraps.
 The JSON structure must match this example:

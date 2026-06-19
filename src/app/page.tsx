@@ -55,6 +55,7 @@ function HomeContent() {
     audience: string;
     country: string;
     constraints: string;
+    language: string;
     fileAttachment?: FileAttachment | null;
   } | null>(null);
   const [analysisResult, setAnalysisResult] = useState<FeasibilityResult | null>(null);
@@ -116,6 +117,7 @@ function HomeContent() {
     audience: string;
     country: string;
     constraints: string;
+    language: string;
     fileAttachment?: FileAttachment | null;
   }) => {
     setCreationLoading(true);
@@ -159,7 +161,8 @@ function HomeContent() {
         projectData.country,
         projectData.constraints,
         analysisResult,
-        projectData.fileAttachment
+        projectData.fileAttachment,
+        projectData.language
       );
 
       // Refresh project list and open the newly saved project details
@@ -372,6 +375,7 @@ function HomeContent() {
               : "Validation Complete"
           }
           fileAttachment={activeProject.fileAttachment}
+          language={activeProject.language}
           onClose={() => setVoiceCallActive(false)}
         />
       )}

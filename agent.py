@@ -25,6 +25,7 @@ async def entrypoint(ctx: JobContext):
     active_milestone = "milestone validation"
     file_name = ""
     file_summary = ""
+    language = "English"
     
     # Read participant metadata to dynamically guide the agent
     for p in ctx.room.remote_participants.values():
@@ -35,7 +36,8 @@ async def entrypoint(ctx: JobContext):
                 active_milestone = meta.get("activeMilestoneTitle", active_milestone)
                 file_name = meta.get("fileName", "")
                 file_summary = meta.get("fileSummary", "")
-                logger.info(f"Parsed participant metadata: project='{project_name}', milestone='{active_milestone}', file='{file_name}'")
+                language = meta.get("language", language)
+                logger.info(f"Parsed participant metadata: project='{project_name}', milestone='{active_milestone}', file='{file_name}', language='{language}'")
                 break
             except Exception as e:
                 logger.warning(f"Failed to parse participant metadata: {e}")
@@ -43,7 +45,7 @@ async def entrypoint(ctx: JobContext):
     file_context = ""
     if file_name:
         file_context = f"\n\n[Uploaded Document Context: {file_name}]\n{file_summary}\nUse this context when discussing the project details or milestones."
-
+ 
     instructions = (
         f"You are a professional, encouraging, and sharp startup validator assisting a creator on their project: \"{project_name}\".\n"
         f"The user is currently focused on the milestone: \"{active_milestone}\".{file_context}\n\n"
@@ -52,7 +54,7 @@ async def entrypoint(ctx: JobContext):
         f"2. Greet the user, acknowledge their project \"{project_name}\", and ask them about their progress on the active milestone: \"{active_milestone}\".\n"
         "3. Act as a helpful devil's advocate. Constructively challenge their assumptions and guide them toward a concrete, low-cost action step they can perform in 2 hours to validate their idea.\n"
         "4. Answer their questions about target audience, feasibility, and demand gathering.\n"
-        "5. Always listen to the language the user speaks in. If they speak in a language other than English (e.g., Spanish, French, German, Arabic, Portuguese, Chinese, etc.), respond to them in that same language.\n"
+        f"5. Speak and respond EXCLUSIVELY in the following language: {language}. Do not mix in any other language. Always start the greeting and continue the whole session in {language}. If the language is set to French, you must speak only French. If it is set to English, speak only English.\n"
     )
     
     # Configure Gemini Realtime model

@@ -23,6 +23,7 @@ export interface UserProject {
   audience: string;
   country: string;
   constraints: string;
+  language?: string;
   feasibilityScore: number;
   feasibilityAdvice: string;
   competitors: string[];
@@ -44,7 +45,8 @@ export async function saveProject(
   country: string,
   constraints: string,
   analysis: FeasibilityResult,
-  fileAttachment?: FileAttachment | null
+  fileAttachment?: FileAttachment | null,
+  language: string = "English"
 ): Promise<string> {
   const projectsCol = collection(db, "projects");
   const docRef = await addDoc(projectsCol, {
@@ -54,6 +56,7 @@ export async function saveProject(
     audience,
     country,
     constraints,
+    language,
     feasibilityScore: analysis.score,
     feasibilityAdvice: analysis.advice,
     competitors: analysis.competitors,
