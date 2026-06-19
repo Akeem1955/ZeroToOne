@@ -13,7 +13,7 @@ import {
   serverTimestamp,
   Timestamp,
 } from "firebase/firestore";
-import { Milestone, FeasibilityResult, FileAttachment } from "./types";
+import { Milestone, FeasibilityResult, FileAttachment, ScoreBreakdown, CompetitorSegment } from "./types";
 
 export interface UserProject {
   id: string;
@@ -26,11 +26,13 @@ export interface UserProject {
   language?: string;
   feasibilityScore: number;
   feasibilityAdvice: string;
-  competitors: string[];
+  competitors: string[] | CompetitorSegment;
   painPoints: string[];
   milestones: Milestone[];
   activeMilestoneIndex: number;
   devilAdvocate: string[];
+  scoreBreakdown?: ScoreBreakdown;
+  recommendation?: 'Proceed' | 'Validate More' | 'Do Not Proceed';
   fileAttachment?: FileAttachment | null;
   createdAt: any;
   updatedAt: any;
@@ -63,6 +65,8 @@ export async function saveProject(
     painPoints: analysis.painPoints,
     milestones: analysis.roadmap,
     devilAdvocate: analysis.devilAdvocate,
+    scoreBreakdown: analysis.scoreBreakdown || null,
+    recommendation: analysis.recommendation || null,
     activeMilestoneIndex: 0,
     fileAttachment: fileAttachment || null,
     createdAt: serverTimestamp(),

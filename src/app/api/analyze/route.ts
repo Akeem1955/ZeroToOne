@@ -38,8 +38,14 @@ Target Output Language: ${language || "English"}
 
 Tasks:
 1. Conduct a grounded analysis using Google Search. Search for active competitors, companies, or open source projects doing something similar.
-2. Determine a realistic feasibility score (0 to 100) based on market saturation, technical feasibility, and customer acquisition risks. Be highly rigorous. If the idea is highly saturated or has low market demand, the score MUST be below 40.
-3. Extract 3 actual competitors or alternatives.
+2. Determine a realistic overall feasibility score (0 to 100) and calculate a detailed score breakdown (each from 0 to 100) for the following five dimensions:
+   - technical: Technical feasibility & build complexity
+   - market: Market size, demand, & urgency of the problem
+   - competition: Competitor landscape & saturation (higher score means less saturated / easier to compete)
+   - monetization: Monetization ease, pricing viability & margin potential
+   - distribution: Distribution channel strength, customer acquisition ease
+   Based on these, generate a final recommendation: 'Proceed' (overall score >= 75), 'Validate More' (overall score >= 45 and < 75), or 'Do Not Proceed' (overall score < 45).
+3. Improve competitor analysis by separating competitors into direct competitors (offering the same solution), indirect competitors (offering different solutions for the same problem), and current user alternatives (manual workarounds, spreadsheets, or doing nothing).
 4. Extract 3 critical user pain points or risks (e.g., regulatory bottlenecks in ${country || "the target country"}).
 5. Generate a 3-stage validation roadmap:
    - Milestone 1: Focuses purely on low-cost validation (e.g., interviewing users).
@@ -53,14 +59,25 @@ Tasks:
    - firstStep (a highly concrete, 2-hour task the user can do immediately in the real world to start)
    - completionGate (the strict exit criteria that the user must manually check off to verify this stage has been validated)
 6. Formulate 3 contrarian "Devil's Advocate" feedback points challenging the user's core assumptions.
-7. Generate all text fields and values inside the JSON output (advice, competitors, painPoints, title, description, firstStep, completionGate, etc.) EXCLUSIVELY in the language specified as "Target Output Language" (${language || "English"}). Do not translate the JSON keys. Do not mix languages (e.g. do not mix English and French). All content in the text values must be in ${language || "English"}.
+7. Generate all text fields and values inside the JSON output (advice, direct, indirect, alternatives, painPoints, title, description, firstStep, completionGate, etc.) EXCLUSIVELY in the language specified as "Target Output Language" (${language || "English"}). Do not translate the JSON keys. Do not mix languages (e.g. do not mix English and French). All content in the text values must be in ${language || "English"}.
 
 Your output must be a single, valid JSON block. Do not include any explaining text outside of the JSON block. Do not use markdown wraps.
 The JSON structure must match this example:
 {
   "score": 75,
+  "scoreBreakdown": {
+    "technical": 80,
+    "market": 70,
+    "competition": 60,
+    "monetization": 75,
+    "distribution": 90
+  },
   "advice": "Viable project. Focus on Milestone 1 validation.",
-  "competitors": ["Comp A", "Comp B", "Comp C"],
+  "competitors": {
+    "direct": ["Comp A", "Comp B"],
+    "indirect": ["Comp C"],
+    "alternatives": ["Spreadsheets", "Manual work"]
+  },
   "painPoints": ["Risk 1", "Risk 2", "Risk 3"],
   "roadmap": [
     {
@@ -72,7 +89,8 @@ The JSON structure must match this example:
       "completionGate": "Exit gate details"
     }
   ],
-  "devilAdvocate": ["Point 1", "Point 2", "Point 3"]
+  "devilAdvocate": ["Point 1", "Point 2", "Point 3"],
+  "recommendation": "Validate More"
 }
 `;
 
